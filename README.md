@@ -1,7 +1,7 @@
 ## Dogs Fed Indicator with Arduino Uno R4
 
 ### Overview
-This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C LCD into a “Dog Fed” indicator.  
+This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C LCD into a “Dogs Fed” indicator.  
 - Press the button to toggle between **Fed** and **Not Fed** states.  
 - The green LED lights when **Fed**; the red LED lights when **Not Fed**.  
 - A timestamp on the LCD shows the last toggle time, synchronized via NTP (Central Time with DST).  
