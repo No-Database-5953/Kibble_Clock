@@ -1,4 +1,4 @@
-## Dog Fed Indicator with Arduino Uno R4
+## Dogs Fed Indicator with Arduino Uno R4
 
 ### Overview
 This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C LCD into a “Dog Fed” indicator.  
