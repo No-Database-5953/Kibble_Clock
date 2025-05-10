@@ -5,7 +5,7 @@ This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C L
 - Press the button to toggle between **Fed** and **Not Fed** states.  
 - The green LED lights when **Fed**; the red LED lights when **Not Fed**.  
 - A timestamp on the LCD shows the last toggle time, synchronized via NTP (Central Time with DST).  
-- After **10 hours**, the status automatically resets to **Not Fed**. citeturn0file0
+- After **10 hours**, the status automatically resets to **Not Fed**.
 
 ### Features
 - **WiFi + NTP** time sync every hour  
