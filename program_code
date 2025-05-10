@@ -1,0 +1,167 @@
+#include <WiFi.h>
+#include <LiquidCrystal_I2C.h>  // See note under this setion
+#include <NTPClient.h>
+#include <Wire.h>
+#include <WiFiUdp.h>
+#include <Timezone.h>  // Include the Timezone library
+
+/* Note: In library.properties of LiquidCrystal_I2C, architecture=avr was changed to architecture=* 
+as a warning was showing in the compiler output. Ensure the Arduino Uno R4 is compatible with this library 
+and its associated changes in library.properties before implementing this entire project code in to a device. */
+
+// Pin Definitions
+const int buttonPin = 2;    // Button connected to digital pin 2
+const int greenLEDPin = 3;  // Green LED connected to digital pin 3
+const int redLEDPin = 4;    // Red LED connected to digital pin 4
+
+// LCD Initialization
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Adjust I2C address if necessary
+
+// WiFi and NTP Setup
+const char* ssid = "your_SSID";      // Replace with your WiFi SSID
+const char* password = "your_PASSWORD"; // Replace with your WiFi password
+WiFiUDP udp;
+NTPClient timeClient(udp, "us.pool.ntp.org", 0, 3600000);  // UTC time, update every hour
+
+// Timezone setup for US Central Time
+// US Central Time (Chicago, Dallas)
+TimeChangeRule usCDT = {"CDT", Second, Sun, Mar, 2, -300};   // Central Daylight Time = UTC-5hrs
+TimeChangeRule usCST = {"CST", First, Sun, Nov, 2, -360};    // Central Standard Time = UTC-6hrs
+Timezone usCentral(usCDT, usCST);
+
+// Variables
+bool isFed = false;         // Tracks the feeding status
+unsigned long lastFedTime = 0; // Stores the time when the status was set to "Fed"
+const unsigned long resetInterval = 10UL * 60UL * 60UL * 1000UL; // 10 hours in milliseconds
+
+void setup() {
+  // Initialize serial monitor
+  Serial.begin(115200);
+
+  // Initialize pins
+  pinMode(buttonPin, INPUT_PULLUP); // Button uses internal pull-up resistor
+  pinMode(greenLEDPin, OUTPUT);
+  pinMode(redLEDPin, OUTPUT);
+
+  // Initialize LCD
+  lcd.init();
+  lcd.backlight();
+
+  // Connect to WiFi
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Connected to WiFi");
+
+  // Initialize NTPClient
+  timeClient.begin();
+  timeClient.update();
+
+  // Set initial state
+  updateLEDs();
+  updateLCD();
+}
+
+void loop() {
+  static bool buttonPressed = false;
+
+  // Update the NTP time
+  timeClient.update();
+
+  // Check button state
+  if (digitalRead(buttonPin) == LOW && !buttonPressed) {
+    buttonPressed = true;
+    toggleStatus();
+  } else if (digitalRead(buttonPin) == HIGH) {
+    buttonPressed = false;
+  }
+
+  // Check if 10 hours have passed since feeding
+  if (isFed && (millis() - lastFedTime >= resetInterval)) {
+    isFed = false;
+    updateLEDs();
+    updateLCD();
+  }
+
+  // Update the LCD with current time
+  updateLCD();
+}
+
+void toggleStatus() {
+  if (!isFed) {
+    isFed = true;
+    lastFedTime = millis();
+  } else {
+    isFed = false;
+  }
+  updateLEDs();
+  updateLCD();
+}
+
+void updateLEDs() {
+  if (isFed) {
+    digitalWrite(greenLEDPin, HIGH); // Turn on green LED
+    digitalWrite(redLEDPin, LOW);   // Turn off red LED
+  } else {
+    digitalWrite(greenLEDPin, LOW); // Turn off green LED
+    digitalWrite(redLEDPin, HIGH); // Turn on red LED
+  }
+}
+
+String getFormattedTime() {
+  // Get UTC time as epoch
+  time_t utc = timeClient.getEpochTime();
+  
+  // Convert to local time with DST consideration
+  time_t local = usCentral.toLocal(utc);
+  
+  // Format time as HH:MM:SS
+  String formattedTime = "";
+  
+  // Hours
+  int hours = hour(local);
+  if (hours < 10) {
+    formattedTime += "0";
+  }
+  formattedTime += String(hours) + ":";
+  
+  // Minutes
+  int minutes = minute(local);
+  if (minutes < 10) {
+    formattedTime += "0";
+  }
+  formattedTime += String(minutes) + ":";
+  
+  // Seconds
+  int seconds = second(local);
+  if (seconds < 10) {
+    formattedTime += "0";
+  }
+  formattedTime += String(seconds);
+  
+  return formattedTime;
+}
+
+void updateLCD() {
+  lcd.clear();
+  
+  // Get current local time with DST adjustment
+  String currentTime = getFormattedTime();
+
+  if (isFed) {
+    lcd.setCursor(0, 0);
+    lcd.print("Status: Fed");
+    lcd.setCursor(0, 1);
+    lcd.print("Time: ");
+    lcd.print(currentTime);
+  } else {
+    lcd.setCursor(0, 0);
+    lcd.print("Status: Not Fed");
+    lcd.setCursor(0, 1);
+    lcd.print("Time: ");
+    lcd.print(currentTime);
+  }
+}
