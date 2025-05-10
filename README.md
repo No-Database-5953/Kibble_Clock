@@ -36,7 +36,7 @@ This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C L
 - **Arduino IDE** ≥ 1.8.x  
 - **Libraries**:  
   - `WiFi.h` (built-in)  
-  - `LiquidCrystal_I2C` by Frank de Brabander (modified to support `architecture=*`) citeturn0file0  
+  - `LiquidCrystal_I2C` by Frank de Brabander (modified to support `architecture=*`)  
   - `NTPClient`  
   - `Timezone`
 
