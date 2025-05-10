@@ -35,8 +35,8 @@ This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C L
 ### Software Requirements
 - **Arduino IDE** ≥ 1.8.x  
 - **Libraries**:  
-  - `WiFi.h` (built-in)  
-  - `LiquidCrystal_I2C` by Frank de Brabander (modified to support `architecture=*`)  
+  - `WiFi.h` (built-in)
+  - `LiquidCrystal_I2C` by Frank de Brabander (modified to support `architecture=*`)
   - `NTPClient`  
   - `Timezone`
 
@@ -48,7 +48,7 @@ This sketch turns an Arduino Uno R4, a push-button, two LEDs, and a 16×2 I²C L
 > ```ini
 > architecture=*
 > ```  
-> so it compiles for the Renesas-based Uno R4. citeturn0file0
+> so it compiles for the Renesas-based Uno R4.
 
 ### Installation & Configuration
 
@@ -86,7 +86,7 @@ TimeChangeRule usCDT = {"CDT", Second, Sun, Mar, 2, -300};
 TimeChangeRule usCST = {"CST", First,  Sun, Nov, 2, -360};
 Timezone      usCentral(usCDT, usCST);
 ```  
-Local time is derived via `usCentral.toLocal( timeClient.getEpochTime() )`. citeturn0file0
+Local time is derived via `usCentral.toLocal( timeClient.getEpochTime() )`.
 
 ### Troubleshooting
 
